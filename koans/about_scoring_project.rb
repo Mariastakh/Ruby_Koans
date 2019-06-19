@@ -26,68 +26,44 @@ require File.expand_path(File.dirname(__FILE__) + '/neo')
 # score([1,5,1,2,4]) => 250 points
 #
 # More scoring examples are given in the tests below:
-#
-# Your goal is to write the score method.
 
+# Your goal is to write the score method.
 def score(dice)
-  # You need to write this method
+
   if dice.empty?
     return 0
   end
 
-  if dice.size == 1 && dice == [5]
-    return 50
-  end
-
-  if dice.size == 1 && dice == [1]
-    return 100
-  end
-
-  results =[0, 0, 0, 0, 0, 0]
-
-  for item in dice
-    case item
-    when 1
-      results[0] += 1
-    when 2
-      results[1] += 1
-    when 3
-      results[2] += 1
-    when 4
-      results[3] += 1
-    when 5
-      results[4] += 1
-    when 6
-      results[5] += 1
-    end
-  end
+  # Collect number of rolls, for each dice value:
+  hash = {1=> 0, 2=> 0, 3=> 0, 4=> 0, 5=>0, 6=> 0}
+  dice.each{|item| hash[item] += 1 if hash.fetch(item)}
 
   theScore = 0
-  if results[1] >= 3
-    theScore += (2*100)
-  end
-  if results[2] >= 3
-    theScore += (3*100)
-  end
-  if results[3] >= 3
-    theScore += (4*100)
-  end
-  if results[5] >= 3
-    theScore += (6*100)
-  end
 
-  if results[0] < 3
-    theScore += 100 * results[0]
-  elsif results[0] >= 3
-    theScore += (1000 + ((results[0] - 3) * 100))
-  end
+  # Sum up the score:
+  hash.each{|key, value|
+    if key == 1 # If one is rolled:
+      if value < 3 # Less than three times:
+        theScore += (100 * value)
+      elsif value >= 3 # 3 times or more:
+        theScore += (1000 + ((value - 3) * 100))
+      end
+    elsif key == 5 # If five is rolled:
+     if value < 3 # Less than three times:
+       theScore += (50 * value)
+     elsif value >= 3 # 3 times or more:
+       theScore += (500 + ((value - 3) * 50))
+     end
 
-  if results[4] < 3
-    theScore += 50 * results[4]
-  elsif results[4] >= 3
-    theScore += (500 + ((results[4] - 3) * 50))
-  end
+   # If any other number is rolled more than three times:
+   elsif value >= 3
+      theScore += (key*100)
+    end
+   }
+  return theScore
+
 end
+
 
 class AboutScoringProject < Neo::Koan
   def test_score_of_an_empty_list_is_zero
